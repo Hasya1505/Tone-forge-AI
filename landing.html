@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ToneForge AI – Multi-Model Content &amp; Outreach Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ===== RAGORA DESIGN TOKENS ===== */
+:root{
+  --color-primary:#E8490F;
+  --color-accent-1:#FF6B2C;
+  --color-on-primary:#FFFFFF;
+  --color-canvas:#0C0E11;
+  --color-surface:#12151A;
+  --color-body:#F2EFE7;
+  --color-muted:#B0ABA0;
+  --color-faint:#76716A;
+  --border-subtle:rgba(255,255,255,0.1);
+  --border-input:rgba(255,255,255,0.15);
+  --rounded-xs:8px;
+  --rounded-sm:12px;
+  --rounded-full:9999px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--color-canvas);
+  color:var(--color-body);
+  min-height:100vh;
+  line-height:1.75;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+input,textarea{font-family:inherit}
+
+/* ===== NAV ===== */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+  height:65px;
+  background:rgba(12,14,17,0.95);
+  border-bottom:1px solid var(--border-subtle);
+  position:sticky;
+  top:0;
+  z-index:50;
+  backdrop-filter:blur(8px);
+}
+.nav-brand{
+  font-weight:700;
+  font-size:18px;
+  letter-spacing:-0.4px;
+  color:var(--color-on-primary);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.nav-brand::before{
+  content:"";
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:2px;
+  background:var(--color-primary);
+}
+.nav-links{display:flex;gap:8px}
+.nav-links a{
+  padding:8px 16px;
+  border-radius:var(--rounded-xs);
+  font-size:14px;
+  font-weight:600;
+  line-height:1.43;
+  color:var(--color-muted);
+  transition:background .15s ease,color .15s ease;
+}
+.nav-links a:hover{
+  background:rgba(255,255,255,0.06);
+  color:var(--color-on-primary);
+}
+.nav-links a.active{
+  background:rgba(232,73,15,0.14);
+  color:var(--color-primary);
+  border:1px solid rgba(232,73,15,0.35);
+}
+.nav-status{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  font-weight:500;
+  color:var(--color-muted);
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  padding:5px 14px;
+  border-radius:var(--rounded-full);
+  white-space:nowrap;
+}
+
+/* ===== LAYOUT ===== */
+.container{max-width:1140px;margin:0 auto;padding:48px 24px}
+.section{margin-bottom:72px}
+.eyebrow{
+  display:inline-block;
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:1.68px;
+  text-transform:uppercase;
+  color:var(--color-accent-1);
+  background:rgba(232,73,15,0.12);
+  border:1px solid rgba(232,73,15,0.35);
+  padding:5px 14px;
+  border-radius:var(--rounded-full);
+  margin-bottom:18px;
+}
+.section-title{
+  font-size:32px;
+  font-weight:700;
+  line-height:1.2;
+  letter-spacing:-0.8px;
+  color:var(--color-on-primary);
+  margin-bottom:10px;
+}
+.section-sub{
+  font-size:16px;
+  color:var(--color-muted);
+  max-width:640px;
+  margin-bottom:32px;
+}
+
+/* ===== HERO ===== */
+.hero{
+  text-align:center;
+  padding:32px 0 16px;
+}
+.hero h1{
+  font-size:48px;
+  font-weight:700;
+  line-height:1.12;
+  letter-spacing:-1.2px;
+  color:var(--color-on-primary);
+  max-width:820px;
+  margin:0 auto 18px;
+}
+.hero h1 span{color:var(--color-primary)}
+.hero p{
+  font-size:18px;
+  color:var(--color-muted);
+  max-width:660px;
+  margin:0 auto 32px;
+}
+.hero-actions{
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-bottom:44px;
+}
+
+/* ===== BUTTONS ===== */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:46px;
+  padding:0 24px;
+  border-radius:var(--rounded-xs);
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:-0.3px;
+  transition:transform .12s ease,border-color .15s ease,background .15s ease;
+}
+.btn-primary{
+  background:var(--color-primary);
+  color:var(--color-on-primary);
+  border:none;
+}
+.btn-primary:hover{transform:scale(0.98)}
+.btn-secondary{
+  background:var(--color-surface);
+  color:var(--color-body);
+  border:1px solid var(--border-input);
+}
+.btn-secondary:hover{
+  border-color:rgba(232,73,15,0.6);
+  color:var(--color-on-primary);
+}
+.btn-full{width:100%}
+
+/* ===== CARDS & GRIDS ===== */
+.card{
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-sm);
+  padding:24px;
+  transition:border-color .15s ease;
+}
+.card:hover{border-color:rgba(255,255,255,0.2)}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+
+/* ===== ENGINE CONFIG CARD ===== */
+.engine-card{
+  padding:20px;
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-sm);
+  cursor:pointer;
+  transition:border-color .15s ease,background .15s ease;
+  text-align:left;
+}
+.engine-card:hover{border-color:rgba(255,255,255,0.24)}
+.engine-card.selected{
+  border-color:var(--color-primary);
+  background:rgba(232,73,15,0.07);
+}
+.engine-card h3{
+  font-size:17px;
+  font-weight:600;
+  color:var(--color-on-primary);
+  margin-bottom:4px;
+}
+.engine-card p{font-size:14px;color:var(--color-muted)}
+.key-row{
+  display:flex;
+  gap:12px;
+  margin-top:16px;
+}
+.input-field{
+  width:100%;
+  height:44px;
+  padding:0 16px;
+  background:var(--color-canvas);
+  color:var(--color-body);
+  border:1px solid var(--border-input);
+  border-radius:var(--rounded-xs);
+  font-size:15px;
+  outline:none;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+.input-field:focus{
+  border-color:rgba(232,73,15,0.75);
+  box-shadow:0 0 0 4px rgba(232,73,15,0.16);
+}
+textarea.input-field{
+  height:auto;
+  min-height:110px;
+  padding:14px 16px;
+  resize:vertical;
+}
+
+/* ===== STUDIOS SHOWCASE ===== */
+.studio-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:40px;
+  height:40px;
+  border-radius:var(--rounded-xs);
+  background:rgba(232,73,15,0.14);
+  color:var(--color-accent-1);
+  font-family:'DM Mono',monospace;
+  font-weight:700;
+  font-size:14px;
+  margin-bottom:14px;
+  border:1px solid rgba(232,73,15,0.35);
+}
+.card h3{
+  font-size:19px;
+  font-weight:600;
+  color:var(--color-on-primary);
+  margin-bottom:8px;
+}
+.card p{font-size:14px;color:var(--color-muted);margin-bottom:18px}
+.studio-meta{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  color:var(--color-accent-1);
+  display:block;
+  margin-bottom:16px;
+}
+
+/* ===== PRICING PLANS ===== */
+.plan-card{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  position:relative;
+}
+.plan-card.featured{
+  border-color:var(--color-primary);
+  background:linear-gradient(180deg, rgba(232,73,15,0.08) 0%, var(--color-surface) 45%);
+}
+.plan-badge{
+  position:absolute;
+  top:-12px;
+  right:20px;
+  background:var(--color-primary);
+  color:var(--color-on-primary);
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  font-weight:600;
+  padding:3px 12px;
+  border-radius:var(--rounded-full);
+}
+.plan-price{
+  font-size:36px;
+  font-weight:700;
+  color:var(--color-on-primary);
+  letter-spacing:-1px;
+  margin:8px 0 4px;
+}
+.plan-price span{
+  font-size:14px;
+  font-weight:500;
+  color:var(--color-muted);
+}
+.plan-list{
+  list-style:none;
+  margin:18px 0 24px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.plan-list li{
+  font-size:14px;
+  color:var(--color-body);
+  padding-left:20px;
+  position:relative;
+}
+.plan-list li::before{
+  content:"✓";
+  position:absolute;
+  left:0;
+  color:var(--color-primary);
+  font-weight:700;
+}
+
+/* ===== REVIEWS ===== */
+.review-stars{
+  color:var(--color-accent-1);
+  font-size:14px;
+  letter-spacing:2px;
+  margin-bottom:10px;
+}
+.review-quote{
+  font-size:15px;
+  color:var(--color-body);
+  line-height:1.65;
+  margin-bottom:16px;
+}
+.reviewer{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  border-top:1px solid var(--border-subtle);
+  padding-top:14px;
+}
+.avatar{
+  width:38px;
+  height:38px;
+  border-radius:var(--rounded-full);
+  background:rgba(232,73,15,0.18);
+  border:1px solid rgba(232,73,15,0.45);
+  color:var(--color-on-primary);
+  font-family:'DM Mono',monospace;
+  font-size:13px;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.reviewer-info strong{
+  display:block;
+  font-size:14px;
+  color:var(--color-on-primary);
+}
+.reviewer-info span{
+  font-size:12px;
+  color:var(--color-muted);
+}
+
+/* ===== TEAM & CONTACT ===== */
+.team-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:14px;
+}
+.tag{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  padding:4px 12px;
+  border-radius:var(--rounded-full);
+  background:var(--color-canvas);
+  border:1px solid var(--border-input);
+  color:var(--color-muted);
+}
+.toast{
+  margin-top:12px;
+  padding:12px 16px;
+  border-radius:var(--rounded-xs);
+  background:rgba(232,73,15,0.14);
+  border:1px solid rgba(232,73,15,0.5);
+  color:var(--color-on-primary);
+  font-size:14px;
+  display:none;
+}
+
+/* ===== FOOTER ===== */
+.footer{
+  border-top:1px solid var(--border-subtle);
+  padding:28px 24px;
+  text-align:center;
+  font-size:13px;
+  color:var(--color-faint);
+}
+
+@media(max-width:900px){
+  .grid-3,.grid-2{grid-template-columns:1fr}
+  .hero h1{font-size:34px}
+  .nav-status{display:none}
+  .nav-links a{padding:6px 10px;font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">ToneForge AI</a>
+  <div class="nav-links">
+    <a href="/" class="active">Overview</a>
+    <a href="/email">Email Studio</a>
+    <a href="/linkedin">LinkedIn Studio</a>
+    <a href="/twitter">X / Twitter Studio</a>
+  </div>
+  <div class="nav-status" id="navStatus">Engine: Gemini</div>
+</nav>
+
+<div class="container">
+
+  <!-- HERO -->
+  <section class="hero section">
+    <div class="eyebrow">Dual-Engine LCEL Architecture &bull; Gemini + Groq LPU</div>
+    <h1>Turn Raw Keypoints into <span>High-Signal</span> Outreach in Seconds.</h1>
+    <p>
+      Built on resilient multi-model Gemini fallback chains and ultra-fast Groq inference.
+      Dial your exact word budget, load 26+ battle-tested boilerplates, and eliminate robotic AI filler.
+    </p>
+    <div class="hero-actions">
+      <a href="/email" class="btn btn-primary">Open Email Studio &rarr;</a>
+      <a href="/linkedin" class="btn btn-secondary">LinkedIn Generator</a>
+      <a href="/twitter" class="btn btn-secondary">X / Thread Builder</a>
+    </div>
+  </section>
+
+  <!-- ENGINE CONFIGURATION -->
+  <section class="section">
+    <div class="card">
+      <h2 style="font-size:20px;font-weight:600;color:#fff;margin-bottom:4px">Configure Default AI Engine</h2>
+      <p style="font-size:14px;color:var(--color-muted);margin-bottom:18px">
+        Your selection syncs automatically across Email, LinkedIn, and X studios via browser session state.
+      </p>
+      <div class="grid-2">
+        <div class="engine-card selected" id="engineGemini" onclick="selectEngine('gemini')">
+          <h3>Google Gemini Free-Tier Fallback</h3>
+          <p>gemma-4-31b-it &rarr; gemini-3.8-flash &rarr; 3.6-flash &rarr; 3.5-flash-lite &bull; Auto-rotates on 429/503</p>
+        </div>
+        <div class="engine-card" id="engineGroq" onclick="selectEngine('groq')">
+          <h3>Groq LPU High-Speed Engine</h3>
+          <p>openai/gpt-oss-20b &bull; Sub-second token generation for rapid iteration</p>
+        </div>
+      </div>
+      <div class="key-row">
+        <input type="password" class="input-field" id="globalApiKey" placeholder="Optional: Override .env API Key for this session..." oninput="saveKey(this.value)">
+      </div>
+    </div>
+  </section>
+
+  <!-- STUDIOS OVERVIEW -->
+  <section class="section" id="studios">
+    <h2 class="section-title">Three Dedicated Writing Studios</h2>
+    <p class="section-sub">Each workspace pairs keypoint expansion with platform-specific length constraints and ready-to-edit boilerplates.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="studio-icon">01</div>
+        <h3>Email Writing Studio</h3>
+        <span class="studio-meta">10 BOILERPLATES &bull; WORD-SIZE DIAL</span>
+        <p>Control exact output length from 60-word crisp replies to 250-word executive proposals with 10 customizable templates.</p>
+        <a href="/email" class="btn btn-primary btn-full">Launch Email Studio &rarr;</a>
+      </div>
+      <div class="card">
+        <div class="studio-icon">02</div>
+        <h3>LinkedIn Creator Studio</h3>
+        <span class="studio-meta">10 BOILERPLATES &bull; HOOK ENGINE</span>
+        <p>Convert research findings, personal builds, and career milestones into scroll-stopping posts formatted for the LinkedIn fold.</p>
+        <a href="/linkedin" class="btn btn-secondary btn-full">Launch LinkedIn Studio &rarr;</a>
+      </div>
+      <div class="card">
+        <div class="studio-icon">03</div>
+        <h3>X / Twitter Studio</h3>
+        <span class="studio-meta">6 BOILERPLATES &bull; 280-CHAR GAUGE</span>
+        <p>Generate single high-punch tweets or connected 5-part technical threads with real-time character limit enforcement.</p>
+        <a href="/twitter" class="btn btn-secondary btn-full">Launch X Studio &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING PLANS -->
+  <section class="section" id="plans">
+    <h2 class="section-title">Transparent Plans for Every Builder</h2>
+    <p class="section-sub">Start immediately on the zero-cost Free Tier using built-in Gemini and Groq fallback pipelines.</p>
+    <div class="grid-3">
+      <div class="card plan-card">
+        <div>
+          <h3>Starter Free Tier</h3>
+          <div class="plan-price">$0 <span>/ forever</span></div>
+          <p style="font-size:13px;color:var(--color-muted)">Ideal for students, developers, and daily outreach.</p>
+          <ul class="plan-list">
+            <li>5-Model Gemini Auto-Fallback Chain</li>
+            <li>Groq LPU Ultra-Fast Mode</li>
+            <li>All 26 Email, LinkedIn &amp; X Boilerplates</li>
+            <li>Interactive Word &amp; Character Controls</li>
+          </ul>
+        </div>
+        <a href="/email" class="btn btn-secondary btn-full">Start Free Now</a>
+      </div>
+
+      <div class="card plan-card featured">
+        <div class="plan-badge">MOST POPULAR</div>
+        <div>
+          <h3>Pro Creator</h3>
+          <div class="plan-price">$9 <span>/ month</span></div>
+          <p style="font-size:13px;color:var(--color-muted)">For founders, researchers, and active job seekers.</p>
+          <ul class="plan-list">
+            <li>Everything in Starter Free Tier</li>
+            <li>Personal Voice Style Matching</li>
+            <li>Unlimited Multi-Tweet Thread Splits</li>
+            <li>Custom Boilerplate Vault &amp; History</li>
+          </ul>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="selectPlan('Pro Creator')">Activate Pro Trial</button>
+      </div>
+
+      <div class="card plan-card">
+        <div>
+          <h3>Team &amp; Agency</h3>
+          <div class="plan-price">$29 <span>/ month</span></div>
+          <p style="font-size:13px;color:var(--color-muted)">Standardize outreach tone across your engineering or sales team.</p>
+          <ul class="plan-list">
+            <li>Shared Brand Tone &amp; Style Guidelines</li>
+            <li>5 Team Workspace Seats</li>
+            <li>Priority Rate-Limit Queueing</li>
+            <li>Dedicated Engineering Support</li>
+          </ul>
+        </div>
+        <button class="btn btn-secondary btn-full" onclick="selectPlan('Team & Agency')">Contact Sales</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- USER REVIEWS -->
+  <section class="section" id="reviews">
+    <h2 class="section-title">Trusted by Builders &amp; Researchers</h2>
+    <p class="section-sub">Real feedback from engineers, analysts, and creators shipping daily content.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="review-quote">"The word-size dial in the Email Studio is a lifesaver. I can turn 4 rough bullet points into a sharp 80-word follow-up for leadership in under three seconds."</p>
+        <div class="reviewer">
+          <div class="avatar">AR</div>
+          <div class="reviewer-info">
+            <strong>Aarav Mehta</strong>
+            <span>Product Analyst &bull; FinTech</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="review-quote">"Having automatic fallback between Gemma, Gemini Flash, and Groq means I never hit a dead end during peak hours. The research LinkedIn templates are spot-on."</p>
+        <div class="reviewer">
+          <div class="avatar">PS</div>
+          <div class="reviewer-info">
+            <strong>Priya Sharma</strong>
+            <span>ML Research Intern</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <p class="review-quote">"Zero robotic clichés like 'I hope this email finds you well.' It strips out fluff automatically and gives me clean copy I can paste straight into Gmail or X."</p>
+        <div class="reviewer">
+          <div class="avatar">DK</div>
+          <div class="reviewer-info">
+            <strong>Devansh Kulkarni</strong>
+            <span>Full-Stack Developer</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM & CONTACT -->
+  <section class="section" id="contact">
+    <div class="grid-2">
+      <div class="card">
+        <div class="eyebrow" style="margin-bottom:12px">Engineering &amp; Architecture</div>
+        <h3 style="font-size:24px;margin-bottom:10px">Built for Speed, Grounding &amp; Zero-Cost Resilience</h3>
+        <p style="font-size:15px;color:var(--color-muted);margin-bottom:16px">
+          Engineered by <strong style="color:#fff">Hasya Patel</strong> — Computer Engineering student &amp; AI/ML Developer specializing in resilient LangChain (LCEL) orchestration, multi-provider LLM fallback pipelines, and high-contrast developer tools.
+        </p>
+        <div class="team-tags">
+          <span class="tag">Python &amp; Flask</span>
+          <span class="tag">LangChain LCEL</span>
+          <span class="tag">Gemini Multi-Model Fallback</span>
+          <span class="tag">Groq LPU Inference</span>
+          <span class="tag">Anti-Cliché Critic</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:22px;margin-bottom:6px">Connect with the Team</h3>
+        <p style="font-size:14px;color:var(--color-muted);margin-bottom:18px">Have a feature request, custom enterprise plan inquiry, or feedback? Send a direct note.</p>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <input type="text" class="input-field" id="contactName" placeholder="Your Name">
+          <input type="email" class="input-field" id="contactEmail" placeholder="Your Email Address">
+          <textarea class="input-field" id="contactMsg" placeholder="Tell us about your use case or feedback..."></textarea>
+          <button class="btn btn-primary" id="contactBtn" onclick="submitContact()">Send Message &rarr;</button>
+        </div>
+        <div class="toast" id="contactToast"></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="footer">
+  ToneForge AI Studio &bull; Powered by LangChain LCEL, Google Gemini Fallback &amp; Groq LPU
+</footer>
+
+<script>
+let currentProvider = sessionStorage.getItem('tf_provider') || 'gemini';
+
+(function init(){
+  selectEngine(currentProvider, true);
+  const savedKey = sessionStorage.getItem('tf_api_key') || '';
+  if(savedKey) document.getElementById('globalApiKey').value = savedKey;
+})();
+
+function selectEngine(provider, silent){
+  currentProvider = provider;
+  sessionStorage.setItem('tf_provider', provider);
+  document.getElementById('engineGemini').classList.toggle('selected', provider === 'gemini');
+  document.getElementById('engineGroq').classList.toggle('selected', provider === 'groq');
+  document.getElementById('navStatus').textContent = 'Engine: ' + (provider === 'gemini' ? 'Gemini' : 'Groq');
+}
+
+function saveKey(val){
+  sessionStorage.setItem('tf_api_key', val.trim());
+}
+
+function selectPlan(planName){
+  const msgBox = document.getElementById('contactMsg');
+  msgBox.value = 'Hi Team, I would like to get early access to the ' + planName + ' plan.';
+  document.getElementById('contact').scrollIntoView({behavior:'smooth'});
+  document.getElementById('contactName').focus();
+}
+
+async function submitContact(){
+  const name = document.getElementById('contactName').value.trim();
+  const email = document.getElementById('contactEmail').value.trim();
+  const message = document.getElementById('contactMsg').value.trim();
+  const toast = document.getElementById('contactToast');
+  const btn = document.getElementById('contactBtn');
+
+  toast.style.display = 'none';
+  if(!name || !email || !message){
+    toast.textContent = 'Please fill in your name, email, and message.';
+    toast.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  try{
+    const res = await fetch('/api/contact', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name, email, message})
+    });
+    const data = await res.json();
+    toast.textContent = res.ok ? data.message : (data.error || 'Error sending message.');
+    toast.style.display = 'block';
+    if(res.ok){
+      document.getElementById('contactName').value = '';
+      document.getElementById('contactEmail').value = '';
+      document.getElementById('contactMsg').value = '';
+    }
+  } catch(e){
+    toast.textContent = 'Network error: ' + e.message;
+    toast.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Send Message &rarr;';
+  }
+}
+</script>
+</body>
+</html>

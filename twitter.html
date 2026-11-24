@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>X / Twitter Studio – ToneForge AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ===== RAGORA DESIGN TOKENS ===== */
+:root{
+  --color-primary:#E8490F;
+  --color-accent-1:#FF6B2C;
+  --color-on-primary:#FFFFFF;
+  --color-canvas:#0C0E11;
+  --color-surface:#12151A;
+  --color-body:#F2EFE7;
+  --color-muted:#B0ABA0;
+  --color-faint:#76716A;
+  --border-subtle:rgba(255,255,255,0.1);
+  --border-input:rgba(255,255,255,0.15);
+  --rounded-xs:8px;
+  --rounded-sm:12px;
+  --rounded-full:9999px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--color-canvas);
+  color:var(--color-body);
+  min-height:100vh;
+  line-height:1.75;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+textarea{font-family:inherit}
+
+/* ===== NAV ===== */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+  height:65px;
+  background:rgba(12,14,17,0.95);
+  border-bottom:1px solid var(--border-subtle);
+  position:sticky;
+  top:0;
+  z-index:50;
+  backdrop-filter:blur(8px);
+}
+.nav-brand{
+  font-weight:700;
+  font-size:18px;
+  letter-spacing:-0.4px;
+  color:var(--color-on-primary);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.nav-brand::before{
+  content:"";
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:2px;
+  background:var(--color-primary);
+}
+.nav-links{display:flex;gap:8px}
+.nav-links a{
+  padding:8px 16px;
+  border-radius:var(--rounded-xs);
+  font-size:14px;
+  font-weight:600;
+  color:var(--color-muted);
+  transition:background .15s ease,color .15s ease;
+}
+.nav-links a:hover{background:rgba(255,255,255,0.06);color:var(--color-on-primary)}
+.nav-links a.active{
+  background:rgba(232,73,15,0.14);
+  color:var(--color-primary);
+  border:1px solid rgba(232,73,15,0.35);
+}
+.nav-status{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  color:var(--color-muted);
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  padding:5px 14px;
+  border-radius:var(--rounded-full);
+}
+
+/* ===== LAYOUT ===== */
+.container{max-width:1200px;margin:0 auto;padding:36px 24px}
+.studio-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:24px;align-items:start;margin-bottom:48px}
+.card{
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-sm);
+  padding:24px;
+  transition:border-color .15s ease;
+}
+.card:hover{border-color:rgba(255,255,255,0.18)}
+.card-title{font-size:20px;font-weight:600;color:var(--color-on-primary);margin-bottom:4px}
+.card-sub{font-size:14px;color:var(--color-muted);margin-bottom:20px}
+.field-label{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--color-muted);
+  display:block;
+  margin-bottom:8px;
+}
+
+/* ===== PILLS & MODE CARDS ===== */
+.pills{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  height:32px;
+  padding:0 14px;
+  border-radius:var(--rounded-full);
+  font-size:12px;
+  font-weight:500;
+  border:1px solid var(--border-input);
+  background:var(--color-canvas);
+  color:var(--color-muted);
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.pill:hover{border-color:rgba(255,255,255,0.3);color:var(--color-on-primary)}
+.pill.active{
+  background:var(--color-on-primary);
+  color:#161310;
+  border-color:var(--color-on-primary);
+  font-weight:600;
+}
+
+.mode-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+.mode-card{
+  padding:12px;
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  cursor:pointer;
+  transition:all .15s ease;
+  text-align:left;
+}
+.mode-card:hover{border-color:rgba(255,255,255,0.25)}
+.mode-card.active{
+  border-color:var(--color-primary);
+  background:rgba(232,73,15,0.08);
+}
+.mode-card strong{display:block;font-size:13px;color:var(--color-on-primary)}
+.mode-card span{font-family:'DM Mono',monospace;font-size:11px;color:var(--color-accent-1)}
+
+textarea.studio-input{
+  width:100%;
+  background:var(--color-canvas);
+  color:var(--color-body);
+  border:1px solid var(--border-input);
+  border-radius:var(--rounded-xs);
+  padding:14px 16px;
+  font-size:15px;
+  line-height:1.6;
+  min-height:175px;
+  resize:vertical;
+  margin-bottom:16px;
+  outline:none;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+textarea.studio-input:focus{
+  border-color:rgba(232,73,15,0.75);
+  box-shadow:0 0 0 4px rgba(232,73,15,0.16);
+}
+
+/* ===== BUTTONS ===== */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:44px;
+  padding:0 22px;
+  border-radius:var(--rounded-xs);
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:-0.3px;
+  transition:transform .12s ease,opacity .15s ease;
+}
+.btn-primary{
+  background:var(--color-primary);
+  color:var(--color-on-primary);
+  border:none;
+  width:100%;
+}
+.btn-primary:hover{transform:scale(0.99)}
+.btn-primary:disabled{opacity:0.45;cursor:not-allowed;transform:none}
+.btn-secondary{
+  background:var(--color-canvas);
+  color:var(--color-body);
+  border:1px solid var(--border-input);
+  height:34px;
+  padding:0 14px;
+  font-size:12px;
+}
+.btn-secondary:hover{border-color:var(--color-primary);color:#fff}
+
+/* ===== TWEET / THREAD OUTPUT CARDS ===== */
+.badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:var(--rounded-full);
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  background:rgba(232,73,15,0.14);
+  color:var(--color-accent-1);
+  border:1px solid rgba(232,73,15,0.4);
+  margin-right:6px;
+  margin-bottom:14px;
+}
+.tweet-stack{display:flex;flex-direction:column;gap:14px}
+.tweet-card{
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  padding:16px;
+}
+.tweet-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+.tweet-handle{
+  font-size:13px;
+  font-weight:600;
+  color:#fff;
+}
+.tweet-handle span{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  font-weight:400;
+  color:var(--color-muted);
+}
+.tweet-text{
+  white-space:pre-wrap;
+  font-size:15px;
+  line-height:1.6;
+  color:var(--color-body);
+  margin-bottom:12px;
+}
+.tweet-foot{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-top:1px solid var(--border-subtle);
+  padding-top:10px;
+}
+.char-meter{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  color:var(--color-muted);
+}
+.char-meter.over{color:var(--color-primary);font-weight:600}
+.error-box{
+  padding:12px 16px;
+  border-radius:var(--rounded-xs);
+  background:rgba(232,73,15,0.12);
+  border:1px solid rgba(232,73,15,0.5);
+  color:#fff;
+  font-size:14px;
+  margin-top:14px;
+  display:none;
+}
+.spinner{
+  display:inline-block;
+  width:15px;
+  height:15px;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+  margin-right:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== BOILERPLATE LIBRARY (6 SCENARIOS) ===== */
+.bp-header{margin-bottom:20px}
+.bp-header h2{font-size:24px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.bp-header p{font-size:14px;color:var(--color-muted)}
+.bp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.bp-card{
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-sm);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  transition:border-color .15s ease;
+}
+.bp-card:hover{border-color:rgba(232,73,15,0.45)}
+.bp-tag{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--color-accent-1);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+.bp-card h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:10px}
+.bp-preview{
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  padding:12px;
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  line-height:1.55;
+  color:var(--color-muted);
+  white-space:pre-wrap;
+  max-height:160px;
+  overflow-y:auto;
+  margin-bottom:14px;
+}
+.bp-actions{display:flex;gap:8px}
+
+@media(max-width:900px){
+  .studio-grid,.bp-grid,.mode-grid{grid-template-columns:1fr}
+  .nav-status{display:none}
+  .nav-links a{padding:6px 10px;font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">ToneForge AI</a>
+  <div class="nav-links">
+    <a href="/">Overview</a>
+    <a href="/email">Email Studio</a>
+    <a href="/linkedin">LinkedIn Studio</a>
+    <a href="/twitter" class="active">X / Twitter Studio</a>
+  </div>
+  <div class="nav-status" id="navStatus">Engine: Gemini</div>
+</nav>
+
+<div class="container">
+
+  <!-- MAIN STUDIO WORKSPACE -->
+  <div class="studio-grid">
+
+    <!-- LEFT: INPUT & CONTROLS -->
+    <div class="card">
+      <h2 class="card-title">X / Twitter Post &amp; Thread Builder</h2>
+      <p class="card-sub">Generate sharp single tweets under 280 characters or structured 5-part technical threads.</p>
+
+      <label class="field-label">AI Engine</label>
+      <div class="pills" id="providerPills">
+        <div class="pill active" data-val="gemini" onclick="setProvider('gemini')">Gemini (5-Model Fallback)</div>
+        <div class="pill" data-val="groq" onclick="setProvider('groq')">Groq LPU (Ultra-Fast)</div>
+      </div>
+
+      <label class="field-label">Format Mode</label>
+      <div class="mode-grid" id="modeCards">
+        <div class="mode-card active" data-mode="Single Tweet (<= 270 chars)" data-words="40" onclick="selectMode(this)">
+          <strong>Single Tweet</strong>
+          <span>&le; 280 chars &bull; High Punch</span>
+        </div>
+        <div class="mode-card" data-mode="Viral Thread (4-5 numbered tweets separated by ---)" data-words="220" onclick="selectMode(this)">
+          <strong>5-Tweet Thread</strong>
+          <span>Hook + Breakdown + TL;DR</span>
+        </div>
+        <div class="mode-card" data-mode="Smart Value-Add Reply (<= 240 chars)" data-words="35" onclick="selectMode(this)">
+          <strong>Smart Reply</strong>
+          <span>&le; 240 chars &bull; Insightful</span>
+        </div>
+      </div>
+
+      <label class="field-label">Voice &amp; Angle</label>
+      <div class="pills" id="tonePills">
+        <div class="pill active" data-val="Build-in-Public Technical" onclick="setTone(this)">Build-in-Public</div>
+        <div class="pill" data-val="Sharp Contrarian One-Liner" onclick="setTone(this)">Contrarian Take</div>
+        <div class="pill" data-val="Actionable Developer Tip" onclick="setTone(this)">Dev Tip / Snippet</div>
+        <div class="pill" data-val="Analytical & Data-Driven" onclick="setTone(this)">Data / Metric</div>
+      </div>
+
+      <label class="field-label">Keypoints / Rough Idea</label>
+      <textarea class="studio-input" id="keypointsInput" placeholder="- Switched from cloud embeddings to local FastEmbed + FAISS in Python&#10;- Cut embedding API cost to $0 and reduced query latency to 140ms&#10;- Lesson: Optimize local caching before scaling LLM tiers"></textarea>
+
+      <button class="btn btn-primary" id="genBtn" onclick="generateTwitter()">Generate X Content &rarr;</button>
+      <div class="error-box" id="errBox"></div>
+    </div>
+
+    <!-- RIGHT: LIVE CHARACTER-METER PREVIEW -->
+    <div class="card">
+      <h2 class="card-title">Live X Preview &amp; Character Gauge</h2>
+      <p class="card-sub">Automatically splits threads into individual copy-ready tweet cards with 280-char gauges.</p>
+
+      <div id="metaBadges">
+        <span class="badge">280-Char Guard Active</span>
+      </div>
+
+      <div class="tweet-stack" id="tweetStack">
+        <div class="tweet-card">
+          <div class="tweet-top">
+            <div class="tweet-handle">Hasya Patel <span>@Hasya1505</span></div>
+          </div>
+          <div class="tweet-text">Your generated tweet or multi-part thread will render here with a live 280-character circular gauge on every card.
+
+Tip: Try any of the 6 X/Twitter boilerplates below for Build-in-Public updates, 5-tweet technical threads, or contrarian one-liners.</div>
+          <div class="tweet-foot">
+            <div class="char-meter">0 / 280 chars</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM SECTION: 6 READY-TO-COPY X BOILERPLATES -->
+  <section>
+    <div class="bp-header">
+      <h2>6 High-Signal X / Twitter Boilerplates</h2>
+      <p>Load any template into the editor above to customize [placeholders] or copy straight to X.</p>
+    </div>
+    <div class="bp-grid" id="bpContainer"></div>
+  </section>
+
+</div>
+
+<script>
+let provider = sessionStorage.getItem('tf_provider') || 'gemini';
+let selectedMode = 'Single Tweet (<= 270 chars)';
+let targetWords = 40;
+let selectedTone = 'Build-in-Public Technical';
+
+const TWITTER_BOILERPLATES = [
+  {
+    tag: "01 • Build-in-Public",
+    title: "Project Shipping & Metric Update",
+    mode: "Single Tweet (<= 270 chars)",
+    words: 40,
+    tone: "Build-in-Public Technical",
+    body: `Just shipped [Feature / Project Name] in [Tech Stack].
+
+Before: [Old Pain Point / Latency / Cost]
+After: [New Metric, e.g., 0 API quota used & 140ms local FAISS retrieval]
+
+Code + live demo: [Link]`
+  },
+  {
+    tag: "02 • 5-Tweet Thread",
+    title: "Technical Architecture Breakdown Thread",
+    mode: "Viral Thread (4-5 numbered tweets separated by ---)",
+    words: 220,
+    tone: "Build-in-Public Technical",
+    body: `1/5 Most free-tier AI apps crash the moment traffic spikes.
+
+Here is the exact 4-step fallback architecture I used to keep [Project Name] online at $0 cost:
+---
+2/5 Step 1: Never rely on a single model ID.
+
+I chained 5 models in priority order (gemma-4-31b -> gemini-3.8-flash -> 3.5-flash-lite) so 429/503 errors auto-rotate silently.
+---
+3/5 Step 2: Move embeddings off the network.
+
+Using local ONNX FastEmbed + disk-cached FAISS cut vector indexing API calls to zero.
+---
+4/5 Step 3: Add a secondary provider toggle.
+
+Pairing Gemini fallback with Groq LPU gives users sub-second generation whenever one provider slows down.
+---
+5/5 TL;DR: Reliability in applied AI comes from orchestration, not bigger prompts.
+
+Full repo here: [GitHub Link]`
+  },
+  {
+    tag: "03 • Contrarian 1-Liner",
+    title: "Zero-Fluff Engineering Observation",
+    mode: "Single Tweet (<= 270 chars)",
+    words: 35,
+    tone: "Sharp Contrarian One-Liner",
+    body: `Unpopular AI dev truth:
+
+80% of "we need fine-tuning" problems are actually bad chunking and messy retrieval pipelines. Fix your data layer first.`
+  },
+  {
+    tag: "04 • Dev Tip / Snippet",
+    title: "Actionable Code / Performance Takeaway",
+    mode: "Single Tweet (<= 270 chars)",
+    words: 42,
+    tone: "Actionable Developer Tip",
+    body: `Python + LangChain tip that saved my API quota:
+
+Cache your FAISS vector store to disk on first load and serve subsequent queries from an in-memory dictionary.
+
+First query: 1.8s
+Next 100 queries: 0.09s`
+  },
+  {
+    tag: "05 • Smart Reply",
+    title: "Value-Add Reply Under Creator / Founder Post",
+    mode: "Smart Value-Add Reply (<= 240 chars)",
+    words: 35,
+    tone: "Analytical & Data-Driven",
+    body: `Spot on. Saw the exact same pattern when benchmarking [Tool A] vs [Tool B] on [Dataset/Task]—[Specific Metric] improved by [X]% the moment we added [Technique].`
+  },
+  {
+    tag: "06 • Weekly Shipping Log",
+    title: "Friday Build-in-Public Recap",
+    mode: "Single Tweet (<= 270 chars)",
+    words: 45,
+    tone: "Build-in-Public Technical",
+    body: `This week in [Project Name]:
+
+Shipped: [Key Feature 1]
+Fixed: [Bug / Rate-Limit Bottleneck]
+Learned: [1-sentence engineering takeaway]
+Next: [Next Week's Milestone]`
+  }
+];
+
+(function init(){
+  setProvider(provider);
+  renderBoilerplates();
+})();
+
+function setProvider(p){
+  provider = p;
+  sessionStorage.setItem('tf_provider', p);
+  document.querySelectorAll('#providerPills .pill').forEach(el => {
+    el.classList.toggle('active', el.dataset.val === p);
+  });
+  document.getElementById('navStatus').textContent = 'Engine: ' + (p === 'gemini' ? 'Gemini' : 'Groq');
+}
+
+function selectMode(el){
+  selectedMode = el.dataset.mode;
+  targetWords = parseInt(el.dataset.words, 10);
+  document.querySelectorAll('#modeCards .mode-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setTone(el){
+  selectedTone = el.dataset.val;
+  document.querySelectorAll('#tonePills .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function buildRingSvg(count){
+  const pct = Math.min(1, count / 280);
+  const radius = 9;
+  const circ = 2 * Math.PI * radius;
+  const offset = circ * (1 - pct);
+  const stroke = count > 280 ? '#E8490F' : (count > 250 ? '#FF6B2C' : '#F2EFE7');
+  return `<svg width="24" height="24" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="${radius}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="2.5"/>
+    <circle cx="12" cy="12" r="${radius}" fill="none" stroke="${stroke}" stroke-width="2.5"
+      stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"
+      transform="rotate(-90 12 12)"/>
+  </svg>`;
+}
+
+function renderTweets(rawText){
+  const tweets = rawText.split(/\n---\n|---/).map(t => t.trim()).filter(Boolean);
+  const stack = document.getElementById('tweetStack');
+
+  stack.innerHTML = tweets.map((tweet, idx) => {
+    const len = tweet.length;
+    const isOver = len > 280;
+    const label = tweets.length > 1 ? `Tweet ${idx + 1}/${tweets.length}` : 'Single Post';
+    return `
+      <div class="tweet-card">
+        <div class="tweet-top">
+          <div class="tweet-handle">Hasya Patel <span>@Hasya1505 &bull; ${label}</span></div>
+        </div>
+        <div class="tweet-text">${tweet.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+        <div class="tweet-foot">
+          <div class="char-meter ${isOver ? 'over' : ''}">
+            ${buildRingSvg(len)}
+            <span>${len} / 280 chars</span>
+          </div>
+          <button class="btn btn-secondary" onclick="copySingleTweet(this, ${idx})">Copy Tweet</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  window._generatedTweets = tweets;
+}
+
+function copySingleTweet(btn, idx){
+  const text = (window._generatedTweets || [])[idx] || '';
+  if(!text) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1400);
+  });
+}
+
+function renderBoilerplates(){
+  const container = document.getElementById('bpContainer');
+  container.innerHTML = TWITTER_BOILERPLATES.map((bp, idx) => `
+    <div class="bp-card">
+      <div>
+        <div class="bp-tag">${bp.tag}</div>
+        <h3>${bp.title}</h3>
+        <div class="bp-preview">${bp.body.replace(/</g,'&lt;')}</div>
+      </div>
+      <div class="bp-actions">
+        <button class="btn btn-secondary" onclick="loadBoilerplate(${idx})">Use in Editor &uarr;</button>
+        <button class="btn btn-secondary" onclick="copyBoilerplate(${idx}, this)">Copy Template</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function loadBoilerplate(idx){
+  const bp = TWITTER_BOILERPLATES[idx];
+  document.getElementById('keypointsInput').value = bp.body;
+  document.querySelectorAll('#modeCards .mode-card').forEach(c => {
+    if(c.dataset.mode === bp.mode) selectMode(c);
+  });
+  document.querySelectorAll('#tonePills .pill').forEach(p => {
+    if(p.dataset.val === bp.tone) setTone(p);
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  document.getElementById('keypointsInput').focus();
+}
+
+function copyBoilerplate(idx, btn){
+  navigator.clipboard.writeText(TWITTER_BOILERPLATES[idx].body).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1400);
+  });
+}
+
+async function generateTwitter(){
+  const keypoints = document.getElementById('keypointsInput').value.trim();
+  const errBox = document.getElementById('errBox');
+  const btn = document.getElementById('genBtn');
+
+  errBox.style.display = 'none';
+  if(!keypoints){
+    errBox.textContent = 'Please enter your keypoints or load a boilerplate template below.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Crafting X Output...';
+
+  try{
+    const res = await fetch('/api/generate', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        platform: 'twitter',
+        keypoints: keypoints,
+        tone: `${selectedMode} | ${selectedTone}`,
+        target_words: targetWords,
+        provider: provider,
+        api_key: sessionStorage.getItem('tf_api_key') || ''
+      })
+    });
+    const data = await res.json();
+
+    if(!res.ok){
+      errBox.textContent = data.error || 'Generation failed.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    renderTweets(data.content);
+    document.getElementById('metaBadges').innerHTML =
+      `<span class="badge">${data.model_used}</span>` +
+      `<span class="badge">${(window._generatedTweets || []).length} Card(s)</span>`;
+
+  } catch(e){
+    errBox.textContent = 'Network error: ' + e.message;
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Generate X Content &rarr;';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Studio – ToneForge AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ===== RAGORA DESIGN TOKENS ===== */
+:root{
+  --color-primary:#E8490F;
+  --color-accent-1:#FF6B2C;
+  --color-on-primary:#FFFFFF;
+  --color-canvas:#0C0E11;
+  --color-surface:#12151A;
+  --color-body:#F2EFE7;
+  --color-muted:#B0ABA0;
+  --color-faint:#76716A;
+  --border-subtle:rgba(255,255,255,0.1);
+  --border-input:rgba(255,255,255,0.15);
+  --rounded-xs:8px;
+  --rounded-sm:12px;
+  --rounded-full:9999px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--color-canvas);
+  color:var(--color-body);
+  min-height:100vh;
+  line-height:1.75;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+input,textarea{font-family:inherit}
+
+/* ===== NAV ===== */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+  height:65px;
+  background:rgba(12,14,17,0.95);
+  border-bottom:1px solid var(--border-subtle);
+  position:sticky;
+  top:0;
+  z-index:50;
+  backdrop-filter:blur(8px);
+}
+.nav-brand{
+  font-weight:700;
+  font-size:18px;
+  letter-spacing:-0.4px;
+  color:var(--color-on-primary);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.nav-brand::before{
+  content:"";
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:2px;
+  background:var(--color-primary);
+}
+.nav-links{display:flex;gap:8px}
+.nav-links a{
+  padding:8px 16px;
+  border-radius:var(--rounded-xs);
+  font-size:14px;
+  font-weight:600;
+  color:var(--color-muted);
+  transition:background .15s ease,color .15s ease;
+}
+.nav-links a:hover{background:rgba(255,255,255,0.06);color:var(--color-on-primary)}
+.nav-links a.active{
+  background:rgba(232,73,15,0.14);
+  color:var(--color-primary);
+  border:1px solid rgba(232,73,15,0.35);
+}
+.nav-status{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  color:var(--color-muted);
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  padding:5px 14px;
+  border-radius:var(--rounded-full);
+}
+
+/* ===== LAYOUT ===== */
+.container{max-width:1200px;margin:0 auto;padding:36px 24px}
+.studio-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:24px;align-items:start;margin-bottom:48px}
+.card{
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-sm);
+  padding:24px;
+  transition:border-color .15s ease;
+}
+.card:hover{border-color:rgba(255,255,255,0.18)}
+.card-title{
+  font-size:20px;
+  font-weight:600;
+  color:var(--color-on-primary);
+  margin-bottom:4px;
+}
+.card-sub{
+  font-size:14px;
+  color:var(--color-muted);
+  margin-bottom:20px;
+}
+.field-label{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--color-muted);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+/* ===== PILLS ===== */
+.pills{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  height:32px;
+  padding:0 14px;
+  border-radius:var(--rounded-full);
+  font-size:12px;
+  font-weight:500;
+  border:1px solid var(--border-input);
+  background:var(--color-canvas);
+  color:var(--color-muted);
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.pill:hover{border-color:rgba(255,255,255,0.3);color:var(--color-on-primary)}
+.pill.active{
+  background:var(--color-on-primary);
+  color:#161310;
+  border-color:var(--color-on-primary);
+  font-weight:600;
+}
+
+/* ===== ATTRACTIVE WORD-SIZE SELECTOR ===== */
+.size-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:12px;
+}
+.size-card{
+  padding:12px;
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  cursor:pointer;
+  transition:all .15s ease;
+  text-align:left;
+}
+.size-card:hover{border-color:rgba(255,255,255,0.25)}
+.size-card.active{
+  border-color:var(--color-primary);
+  background:rgba(232,73,15,0.08);
+}
+.size-card strong{
+  display:block;
+  font-size:13px;
+  color:var(--color-on-primary);
+}
+.size-card span{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--color-accent-1);
+}
+.slider-wrap{
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  padding:10px 14px;
+  margin-bottom:18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+.slider-wrap input[type="range"]{
+  flex:1;
+  accent-color:var(--color-primary);
+  cursor:pointer;
+}
+.slider-readout{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  color:var(--color-on-primary);
+  min-width:125px;
+  text-align:right;
+}
+
+/* ===== TEXTAREAS & INPUTS ===== */
+textarea.studio-input, input.studio-input{
+  width:100%;
+  background:var(--color-canvas);
+  color:var(--color-body);
+  border:1px solid var(--border-input);
+  border-radius:var(--rounded-xs);
+  padding:14px 16px;
+  font-size:15px;
+  line-height:1.6;
+  outline:none;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+textarea.studio-input{min-height:165px;resize:vertical;margin-bottom:14px}
+textarea.studio-input:focus, input.studio-input:focus{
+  border-color:rgba(232,73,15,0.75);
+  box-shadow:0 0 0 4px rgba(232,73,15,0.16);
+}
+.voice-toggle{
+  font-size:12px;
+  font-weight:600;
+  color:var(--color-muted);
+  background:none;
+  border:none;
+  margin-bottom:14px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.voice-toggle:hover{color:var(--color-primary)}
+.voice-drawer{display:none;margin-bottom:16px}
+.voice-drawer.show{display:block}
+
+/* ===== BUTTONS ===== */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:44px;
+  padding:0 22px;
+  border-radius:var(--rounded-xs);
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:-0.3px;
+  transition:transform .12s ease,opacity .15s ease;
+}
+.btn-primary{
+  background:var(--color-primary);
+  color:var(--color-on-primary);
+  border:none;
+  width:100%;
+}
+.btn-primary:hover{transform:scale(0.99)}
+.btn-primary:disabled{opacity:0.45;cursor:not-allowed;transform:none}
+.btn-secondary{
+  background:var(--color-canvas);
+  color:var(--color-body);
+  border:1px solid var(--border-input);
+  height:36px;
+  padding:0 14px;
+  font-size:13px;
+}
+.btn-secondary:hover{border-color:var(--color-primary);color:#fff}
+
+/* ===== OUTPUT PANEL ===== */
+.badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:var(--rounded-full);
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  background:rgba(232,73,15,0.14);
+  color:var(--color-accent-1);
+  border:1px solid rgba(232,73,15,0.4);
+  margin-right:6px;
+  margin-bottom:14px;
+}
+.email-box{
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  padding:20px;
+  min-height:320px;
+  white-space:pre-wrap;
+  font-size:15px;
+  line-height:1.7;
+  color:var(--color-body);
+}
+.toolbar{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+  flex-wrap:wrap;
+}
+.error-box{
+  padding:12px 16px;
+  border-radius:var(--rounded-xs);
+  background:rgba(232,73,15,0.12);
+  border:1px solid rgba(232,73,15,0.5);
+  color:#fff;
+  font-size:14px;
+  margin-top:14px;
+  display:none;
+}
+.spinner{
+  display:inline-block;
+  width:15px;
+  height:15px;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+  margin-right:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== BOILERPLATE LIBRARY (10 SCENARIOS) ===== */
+.bp-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:20px;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.bp-header h2{font-size:24px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.bp-header p{font-size:14px;color:var(--color-muted)}
+.bp-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+}
+.bp-card{
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-sm);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  transition:border-color .15s ease;
+}
+.bp-card:hover{border-color:rgba(232,73,15,0.45)}
+.bp-tag{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--color-accent-1);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+.bp-card h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:10px}
+.bp-preview{
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  padding:12px;
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  line-height:1.55;
+  color:var(--color-muted);
+  white-space:pre-wrap;
+  max-height:155px;
+  overflow-y:auto;
+  margin-bottom:14px;
+}
+.bp-actions{display:flex;gap:8px}
+
+@media(max-width:900px){
+  .studio-grid,.bp-grid,.size-grid{grid-template-columns:1fr}
+  .nav-status{display:none}
+  .nav-links a{padding:6px 10px;font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">ToneForge AI</a>
+  <div class="nav-links">
+    <a href="/">Overview</a>
+    <a href="/email" class="active">Email Studio</a>
+    <a href="/linkedin">LinkedIn Studio</a>
+    <a href="/twitter">X / Twitter Studio</a>
+  </div>
+  <div class="nav-status" id="navStatus">Engine: Gemini</div>
+</nav>
+
+<div class="container">
+
+  <!-- MAIN STUDIO WORKSPACE -->
+  <div class="studio-grid">
+
+    <!-- LEFT: INPUT & CONTROLS -->
+    <div class="card">
+      <h2 class="card-title">Email Generator</h2>
+      <p class="card-sub">Enter bullet keypoints or load a ready-made boilerplate below, dial your desired email length, and generate.</p>
+
+      <label class="field-label">AI Engine</label>
+      <div class="pills" id="providerPills">
+        <div class="pill active" data-val="gemini" onclick="setProvider('gemini')">Gemini (5-Model Fallback)</div>
+        <div class="pill" data-val="groq" onclick="setProvider('groq')">Groq LPU (Ultra-Fast)</div>
+      </div>
+
+      <label class="field-label">
+        <span>Email Length &amp; Reading Time</span>
+        <span style="color:var(--color-accent-1)" id="readTimeTag">~35 sec read</span>
+      </label>
+      <div class="size-grid" id="sizeCards">
+        <div class="size-card" data-words="65" onclick="selectSizePreset(65, this)">
+          <strong>Crisp &amp; Brief</strong>
+          <span>~65 words &bull; Quick Reply</span>
+        </div>
+        <div class="size-card active" data-words="135" onclick="selectSizePreset(135, this)">
+          <strong>Standard Pro</strong>
+          <span>~135 words &bull; Balanced</span>
+        </div>
+        <div class="size-card" data-words="240" onclick="selectSizePreset(240, this)">
+          <strong>Detailed Proposal</strong>
+          <span>~240 words &bull; Executive</span>
+        </div>
+      </div>
+      <div class="slider-wrap">
+        <input type="range" id="wordSlider" min="45" max="350" step="5" value="135" oninput="updateWordSlider(this.value)">
+        <div class="slider-readout" id="sliderReadout">Target: 135 words</div>
+      </div>
+
+      <label class="field-label">Tone &amp; Intent</label>
+      <div class="pills" id="tonePills">
+        <div class="pill active" data-val="Executive & Formal" onclick="setTone(this)">Executive Formal</div>
+        <div class="pill" data-val="Warm & Persuasive" onclick="setTone(this)">Warm &amp; Persuasive</div>
+        <div class="pill" data-val="Direct & Concise Follow-Up" onclick="setTone(this)">Direct Follow-Up</div>
+        <div class="pill" data-val="Empathetic & Apologetic" onclick="setTone(this)">Empathetic</div>
+      </div>
+
+      <label class="field-label">Keypoints / Draft Notes</label>
+      <textarea class="studio-input" id="keypointsInput" placeholder="- Applying for AI/ML Engineering Internship at [Company]&#10;- Built RAG studio &amp; computer vision projects in Python&#10;- Available starting next month, open to a 15-min intro call"></textarea>
+
+      <button class="voice-toggle" onclick="toggleVoice()">+ Optional: Paste past email sample to match your writing voice</button>
+      <div class="voice-drawer" id="voiceDrawer">
+        <textarea class="studio-input" id="voiceInput" style="min-height:85px" placeholder="Paste 1-2 short emails you wrote previously so the LLM mirrors your exact greeting/sign-off cadence..."></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="genBtn" onclick="generateEmail()">Generate Polished Email &rarr;</button>
+      <div class="error-box" id="errBox"></div>
+    </div>
+
+    <!-- RIGHT: GENERATED OUTPUT -->
+    <div class="card">
+      <h2 class="card-title">Generated Output</h2>
+      <p class="card-sub">Anti-cliché filter active &bull; Ready to copy directly into Gmail or Outlook.</p>
+
+      <div id="metaBadges">
+        <span class="badge">Ready to generate</span>
+      </div>
+
+      <div class="email-box" id="outputBox">Your generated subject line and email body will appear here.
+
+Tip: Click "Use in Editor" on any of the 10 ready-made boilerplates below to customize [bracketed placeholders] and expand them with AI.</div>
+
+      <div class="toolbar">
+        <button class="btn btn-secondary" onclick="copyFull(this)">Copy Full Email</button>
+        <button class="btn btn-secondary" onclick="copySubject(this)">Copy Subject Only</button>
+        <button class="btn btn-secondary" onclick="generateEmail()">Regenerate</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM SECTION: 10 READY-TO-COPY & CUSTOMIZE BOILERPLATES -->
+  <section>
+    <div class="bp-header">
+      <div>
+        <h2>10 Ready-Made Email Boilerplates</h2>
+        <p>Copy any template directly or load it into the editor above to replace [bracketed fields] and polish with AI.</p>
+      </div>
+    </div>
+    <div class="bp-grid" id="bpContainer"></div>
+  </section>
+
+</div>
+
+<script>
+let provider = sessionStorage.getItem('tf_provider') || 'gemini';
+let targetWords = 135;
+let selectedTone = 'Executive & Formal';
+let rawOutput = '';
+
+const EMAIL_BOILERPLATES = [
+  {
+    tag: "01 • Smart Reply",
+    title: "Positive Reply & Meeting Confirmation",
+    tone: "Warm & Persuasive",
+    words: 85,
+    body: `Subject: Re: [Topic / Meeting Title] — Confirmed for [Day, Time]
+
+Hi [Name],
+
+Thank you for reaching out. [Day] at [Time] works well on my end to discuss [Key Agenda Point].
+
+Ahead of our call, I have reviewed [Document / Link] and noted two quick ideas regarding [Specific Focus Area]. Looking forward to speaking with you.
+
+Best regards,
+[Your Name]`
+  },
+  {
+    tag: "02 • Smart Reply",
+    title: "Polite Decline / Boundary-Setting Reply",
+    tone: "Empathetic & Apologetic",
+    words: 90,
+    body: `Subject: Re: [Project / Event / Request Name]
+
+Hi [Name],
+
+Thank you so much for thinking of me for [Opportunity / Request]. After reviewing my current commitments on [Current Priority], I won't be able to take this on and give it the attention it deserves.
+
+I appreciate you reaching out, and I'd love to stay connected for future collaborations.
+
+Warm regards,
+[Your Name]`
+  },
+  {
+    tag: "03 • Leadership / Higher Authority",
+    title: "Application / Proposal to Organization Leadership",
+    tone: "Executive & Formal",
+    words: 180,
+    body: `Subject: Proposal: [Project / Initiative Name] — Request for Approval
+
+Dear [Title/Name, e.g., Dr. Patel / Director],
+
+I am writing to formally propose [Initiative / Project Name] aimed at solving [Core Problem] within [Department / Organization].
+
+Key highlights of the proposed plan:
+- Objective: [Measurable Goal, e.g., reduce manual processing time by 40%]
+- Tech Stack / Resources: [Tools / Budget Required]
+- Timeline: [Start Date] to [Completion Date]
+
+I would be grateful for a brief 10-minute review at your convenience to discuss next steps and seek your approval.
+
+Respectfully,
+[Your Name]
+[Role / ID]`
+  },
+  {
+    tag: "04 • Career Outreach",
+    title: "Cold Application to Hiring Manager / Recruiter",
+    tone: "Warm & Persuasive",
+    words: 150,
+    body: `Subject: [Role Title] Application — [Your Name] ([Core Skill 1] & [Core Skill 2])
+
+Hi [Hiring Manager Name],
+
+I've been following [Company Name]'s recent work on [Product / Feature] and would love to contribute to your [Team Name] team as a [Role Title].
+
+Recently, I built [Project Name], where I engineered [Key Technical Achievement, e.g., a multi-model RAG pipeline reducing latency by 45%] using [Tech Stack]. My GitHub ([GitHub Link]) and portfolio ([Portfolio Link]) showcase these end-to-end builds.
+
+Could we schedule a brief 10-minute chat this week to discuss how my background fits your roadmap?
+
+Best regards,
+[Your Name]
+[Phone / LinkedIn]`
+  },
+  {
+    tag: "05 • Follow-Up",
+    title: "Value-Add Follow-Up After No Response",
+    tone: "Direct & Concise Follow-Up",
+    words: 95,
+    body: `Subject: Quick follow-up: [Original Subject Line]
+
+Hi [Name],
+
+I wanted to briefly bump my note from [Day Sent] regarding [Topic / Application].
+
+Since reaching out, I also shipped [New Update / Relevant Metric / Link] which directly supports [Their Goal]. Happy to share a quick walkthrough whenever convenient.
+
+Best,
+[Your Name]`
+  },
+  {
+    tag: "06 • Project Operations",
+    title: "Weekly Sprint Status & Blocker Escalation",
+    tone: "Executive & Formal",
+    words: 145,
+    body: `Subject: [Project Name] Weekly Update — [Date]
+
+Hi [Manager / Team Lead Name],
+
+Here is our progress summary for [Project Name] this week:
+
+- Completed: [Deliverable 1] and [Deliverable 2] deployed to staging.
+- In Progress: [Current Task] (on track for [Date]).
+- Blocker / Action Needed: We need sign-off on [API Key / Access / Decision] by [Day] to stay on schedule.
+
+Please let me know if you need any additional details.
+
+Best,
+[Your Name]`
+  },
+  {
+    tag: "07 • Client / Stakeholder",
+    title: "Transparent Delay Notice & Recovery Plan",
+    tone: "Empathetic & Apologetic",
+    words: 130,
+    body: `Subject: Updated Delivery Timeline for [Deliverable Name]
+
+Hi [Client / Stakeholder Name],
+
+I am writing to inform you that due to [Specific Root Cause, e.g., an upstream API schema change], delivery of [Deliverable Name] will shift from [Original Date] to [New Date].
+
+To prevent any downstream impact, we have already completed [Completed Portion] and allocated additional testing bandwidth to ensure a smooth handoff on [New Date]. Thank you for your understanding.
+
+Sincerely,
+[Your Name]`
+  },
+  {
+    tag: "08 • Networking",
+    title: "Warm Informational Chat Request (Alumni / Peer)",
+    tone: "Warm & Persuasive",
+    words: 110,
+    body: `Subject: Quick question from a fellow [University / Community] builder
+
+Hi [Name],
+
+I came across your work on [Project / Article / Role at Company] and really appreciated your insights on [Specific Topic].
+
+As a [Your Current Role / Final-Year CE Student] building in [Domain, e.g., Applied AI & Full-Stack Python], I would value 10 minutes of your perspective on transitioning into [Target Role]. No preparation needed—happy to work around your schedule.
+
+Thanks in advance,
+[Your Name]`
+  },
+  {
+    tag: "09 • Post-Meeting",
+    title: "Meeting Recap & Action-Item Assignment",
+    tone: "Executive & Formal",
+    words: 135,
+    body: `Subject: Recap & Action Items: [Meeting Name] ([Date])
+
+Hi Team,
+
+Thank you for a productive session today. Here is a summary of our key decisions and owners:
+
+1. [Owner Name]: Finalize [Task 1] by [Due Date].
+2. [Owner Name]: Share [Resource / Dataset] by [Due Date].
+3. Next Check-In: Scheduled for [Next Meeting Date & Time].
+
+Reply directly if anything needs adjustment.
+
+Best,
+[Your Name]`
+  },
+  {
+    tag: "10 • Transition",
+    title: "Formal Project Handover / Role Transition Note",
+    tone: "Executive & Formal",
+    words: 150,
+    body: `Subject: Handover Documentation & Transition Plan — [Your Name]
+
+Dear [Manager Name],
+
+As I conclude my [Role / Internship] on [Last Working Date], I want to thank you and the team for the mentorship and opportunity to contribute to [Key Project].
+
+To ensure a seamless transition, I have documented all workflows, repository credentials, and deployment steps here: [Documentation Link]. I will spend my final days walking [Successor Name] through the codebase.
+
+Wishing the team continued success,
+[Your Name]`
+  }
+];
+
+(function init(){
+  setProvider(provider, true);
+  renderBoilerplates();
+})();
+
+function setProvider(p, silent){
+  provider = p;
+  sessionStorage.setItem('tf_provider', p);
+  document.querySelectorAll('#providerPills .pill').forEach(el => {
+    el.classList.toggle('active', el.dataset.val === p);
+  });
+  document.getElementById('navStatus').textContent = 'Engine: ' + (p === 'gemini' ? 'Gemini' : 'Groq');
+}
+
+function selectSizePreset(words, cardEl){
+  targetWords = words;
+  document.getElementById('wordSlider').value = words;
+  document.querySelectorAll('#sizeCards .size-card').forEach(c => c.classList.remove('active'));
+  if(cardEl) cardEl.classList.add('active');
+  updateSliderLabel(words);
+}
+
+function updateWordSlider(val){
+  targetWords = parseInt(val, 10);
+  document.querySelectorAll('#sizeCards .size-card').forEach(c => {
+    c.classList.toggle('active', Math.abs(parseInt(c.dataset.words,10) - targetWords) <= 15);
+  });
+  updateSliderLabel(targetWords);
+}
+
+function updateSliderLabel(words){
+  const secs = Math.max(10, Math.round(words / 3.8));
+  document.getElementById('sliderReadout').textContent = 'Target: ' + words + ' words';
+  document.getElementById('readTimeTag').textContent = '~' + secs + ' sec read';
+}
+
+function setTone(el){
+  selectedTone = el.dataset.val;
+  document.querySelectorAll('#tonePills .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function toggleVoice(){
+  document.getElementById('voiceDrawer').classList.toggle('show');
+}
+
+function renderBoilerplates(){
+  const container = document.getElementById('bpContainer');
+  container.innerHTML = EMAIL_BOILERPLATES.map((bp, idx) => `
+    <div class="bp-card">
+      <div>
+        <div class="bp-tag">${bp.tag}</div>
+        <h3>${bp.title}</h3>
+        <div class="bp-preview" id="bpText_${idx}">${bp.body.replace(/</g,'&lt;')}</div>
+      </div>
+      <div class="bp-actions">
+        <button class="btn btn-secondary" onclick="loadBoilerplate(${idx})">Use in Editor &uarr;</button>
+        <button class="btn btn-secondary" onclick="copyBoilerplate(${idx}, this)">Copy Template</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function loadBoilerplate(idx){
+  const bp = EMAIL_BOILERPLATES[idx];
+  document.getElementById('keypointsInput').value = bp.body;
+  selectSizePreset(bp.words, null);
+  updateWordSlider(bp.words);
+
+  document.querySelectorAll('#tonePills .pill').forEach(p => {
+    if(p.dataset.val === bp.tone){
+      setTone(p);
+    }
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  document.getElementById('keypointsInput').focus();
+}
+
+function copyBoilerplate(idx, btn){
+  navigator.clipboard.writeText(EMAIL_BOILERPLATES[idx].body).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1400);
+  });
+}
+
+async function generateEmail(){
+  const keypoints = document.getElementById('keypointsInput').value.trim();
+  const voiceExamples = document.getElementById('voiceInput').value.trim();
+  const errBox = document.getElementById('errBox');
+  const btn = document.getElementById('genBtn');
+
+  errBox.style.display = 'none';
+  if(!keypoints){
+    errBox.textContent = 'Please enter your keypoints or load a boilerplate template first.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Crafting Email...';
+
+  try{
+    const res = await fetch('/api/generate', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        platform: 'email',
+        keypoints: keypoints,
+        tone: selectedTone,
+        target_words: targetWords,
+        provider: provider,
+        api_key: sessionStorage.getItem('tf_api_key') || '',
+        voice_examples: voiceExamples
+      })
+    });
+    const data = await res.json();
+
+    if(!res.ok){
+      errBox.textContent = data.error || 'Generation failed.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    rawOutput = data.content;
+    document.getElementById('outputBox').textContent = rawOutput;
+    document.getElementById('metaBadges').innerHTML =
+      `<span class="badge">${data.word_count} Words</span>` +
+      `<span class="badge">${data.model_used}</span>` +
+      `<span class="badge">Tone: ${selectedTone}</span>`;
+
+  } catch(e){
+    errBox.textContent = 'Network error: ' + e.message;
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Generate Polished Email &rarr;';
+  }
+}
+
+function copyFull(btn){
+  if(!rawOutput) return;
+  navigator.clipboard.writeText(rawOutput).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1400);
+  });
+}
+
+function copySubject(btn){
+  if(!rawOutput) return;
+  const firstLine = rawOutput.split('\n')[0].replace(/^Subject:\s*/i, '').trim();
+  navigator.clipboard.writeText(firstLine).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Subject Copied!';
+    setTimeout(() => btn.textContent = orig, 1400);
+  });
+}
+</script>
+</body>
+</html>

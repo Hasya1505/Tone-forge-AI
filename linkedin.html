@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Studio – ToneForge AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ===== RAGORA DESIGN TOKENS ===== */
+:root{
+  --color-primary:#E8490F;
+  --color-accent-1:#FF6B2C;
+  --color-on-primary:#FFFFFF;
+  --color-canvas:#0C0E11;
+  --color-surface:#12151A;
+  --color-body:#F2EFE7;
+  --color-muted:#B0ABA0;
+  --color-faint:#76716A;
+  --border-subtle:rgba(255,255,255,0.1);
+  --border-input:rgba(255,255,255,0.15);
+  --rounded-xs:8px;
+  --rounded-sm:12px;
+  --rounded-full:9999px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--color-canvas);
+  color:var(--color-body);
+  min-height:100vh;
+  line-height:1.75;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:inherit}
+textarea{font-family:inherit}
+
+/* ===== NAV ===== */
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+  height:65px;
+  background:rgba(12,14,17,0.95);
+  border-bottom:1px solid var(--border-subtle);
+  position:sticky;
+  top:0;
+  z-index:50;
+  backdrop-filter:blur(8px);
+}
+.nav-brand{
+  font-weight:700;
+  font-size:18px;
+  letter-spacing:-0.4px;
+  color:var(--color-on-primary);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.nav-brand::before{
+  content:"";
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:2px;
+  background:var(--color-primary);
+}
+.nav-links{display:flex;gap:8px}
+.nav-links a{
+  padding:8px 16px;
+  border-radius:var(--rounded-xs);
+  font-size:14px;
+  font-weight:600;
+  color:var(--color-muted);
+  transition:background .15s ease,color .15s ease;
+}
+.nav-links a:hover{background:rgba(255,255,255,0.06);color:var(--color-on-primary)}
+.nav-links a.active{
+  background:rgba(232,73,15,0.14);
+  color:var(--color-primary);
+  border:1px solid rgba(232,73,15,0.35);
+}
+.nav-status{
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  color:var(--color-muted);
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  padding:5px 14px;
+  border-radius:var(--rounded-full);
+}
+
+/* ===== LAYOUT ===== */
+.container{max-width:1200px;margin:0 auto;padding:36px 24px}
+.studio-grid{display:grid;grid-template-columns:1.05fr 0.95fr;gap:24px;align-items:start;margin-bottom:48px}
+.card{
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-sm);
+  padding:24px;
+  transition:border-color .15s ease;
+}
+.card:hover{border-color:rgba(255,255,255,0.18)}
+.card-title{
+  font-size:20px;
+  font-weight:600;
+  color:var(--color-on-primary);
+  margin-bottom:4px;
+}
+.card-sub{
+  font-size:14px;
+  color:var(--color-muted);
+  margin-bottom:20px;
+}
+.field-label{
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:1.6px;
+  text-transform:uppercase;
+  color:var(--color-muted);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+/* ===== PILLS & LENGTH CARDS ===== */
+.pills{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  height:32px;
+  padding:0 14px;
+  border-radius:var(--rounded-full);
+  font-size:12px;
+  font-weight:500;
+  border:1px solid var(--border-input);
+  background:var(--color-canvas);
+  color:var(--color-muted);
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.pill:hover{border-color:rgba(255,255,255,0.3);color:var(--color-on-primary)}
+.pill.active{
+  background:var(--color-on-primary);
+  color:#161310;
+  border-color:var(--color-on-primary);
+  font-weight:600;
+}
+
+.size-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:18px;
+}
+.size-card{
+  padding:12px;
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  cursor:pointer;
+  transition:all .15s ease;
+  text-align:left;
+}
+.size-card:hover{border-color:rgba(255,255,255,0.25)}
+.size-card.active{
+  border-color:var(--color-primary);
+  background:rgba(232,73,15,0.08);
+}
+.size-card strong{display:block;font-size:13px;color:var(--color-on-primary)}
+.size-card span{font-family:'DM Mono',monospace;font-size:11px;color:var(--color-accent-1)}
+
+/* ===== TEXTAREAS ===== */
+textarea.studio-input{
+  width:100%;
+  background:var(--color-canvas);
+  color:var(--color-body);
+  border:1px solid var(--border-input);
+  border-radius:var(--rounded-xs);
+  padding:14px 16px;
+  font-size:15px;
+  line-height:1.6;
+  min-height:175px;
+  resize:vertical;
+  margin-bottom:16px;
+  outline:none;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+textarea.studio-input:focus{
+  border-color:rgba(232,73,15,0.75);
+  box-shadow:0 0 0 4px rgba(232,73,15,0.16);
+}
+
+/* ===== BUTTONS ===== */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:44px;
+  padding:0 22px;
+  border-radius:var(--rounded-xs);
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:-0.3px;
+  transition:transform .12s ease,opacity .15s ease;
+}
+.btn-primary{
+  background:var(--color-primary);
+  color:var(--color-on-primary);
+  border:none;
+  width:100%;
+}
+.btn-primary:hover{transform:scale(0.99)}
+.btn-primary:disabled{opacity:0.45;cursor:not-allowed;transform:none}
+.btn-secondary{
+  background:var(--color-canvas);
+  color:var(--color-body);
+  border:1px solid var(--border-input);
+  height:36px;
+  padding:0 14px;
+  font-size:13px;
+}
+.btn-secondary:hover{border-color:var(--color-primary);color:#fff}
+
+/* ===== LINKEDIN PREVIEW CARD ===== */
+.badge{
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:var(--rounded-full);
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  background:rgba(232,73,15,0.14);
+  color:var(--color-accent-1);
+  border:1px solid rgba(232,73,15,0.4);
+  margin-right:6px;
+  margin-bottom:14px;
+}
+.li-mock{
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  padding:18px;
+}
+.li-header{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border-subtle);
+}
+.li-avatar{
+  width:42px;
+  height:42px;
+  border-radius:var(--rounded-full);
+  background:rgba(232,73,15,0.2);
+  border:1px solid rgba(232,73,15,0.5);
+  color:#fff;
+  font-family:'DM Mono',monospace;
+  font-weight:700;
+  font-size:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.li-user strong{display:block;font-size:14px;color:#fff;line-height:1.3}
+.li-user span{font-size:12px;color:var(--color-muted)}
+.li-body{
+  white-space:pre-wrap;
+  font-size:15px;
+  line-height:1.68;
+  color:var(--color-body);
+  min-height:260px;
+}
+.fold-marker{
+  margin:14px 0;
+  border-top:1px dashed rgba(232,73,15,0.45);
+  text-align:right;
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  color:var(--color-accent-1);
+  padding-top:3px;
+}
+.toolbar{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.error-box{
+  padding:12px 16px;
+  border-radius:var(--rounded-xs);
+  background:rgba(232,73,15,0.12);
+  border:1px solid rgba(232,73,15,0.5);
+  color:#fff;
+  font-size:14px;
+  margin-top:14px;
+  display:none;
+}
+.spinner{
+  display:inline-block;
+  width:15px;
+  height:15px;
+  border:2px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .6s linear infinite;
+  margin-right:8px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== BOILERPLATE LIBRARY (10 SCENARIOS) ===== */
+.bp-header{margin-bottom:20px}
+.bp-header h2{font-size:24px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.bp-header p{font-size:14px;color:var(--color-muted)}
+.bp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.bp-card{
+  background:var(--color-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-sm);
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  transition:border-color .15s ease;
+}
+.bp-card:hover{border-color:rgba(232,73,15,0.45)}
+.bp-tag{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:var(--color-accent-1);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+.bp-card h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:10px}
+.bp-preview{
+  background:var(--color-canvas);
+  border:1px solid var(--border-subtle);
+  border-radius:var(--rounded-xs);
+  padding:12px;
+  font-family:'DM Mono',monospace;
+  font-size:12px;
+  line-height:1.55;
+  color:var(--color-muted);
+  white-space:pre-wrap;
+  max-height:165px;
+  overflow-y:auto;
+  margin-bottom:14px;
+}
+.bp-actions{display:flex;gap:8px}
+
+@media(max-width:900px){
+  .studio-grid,.bp-grid,.size-grid{grid-template-columns:1fr}
+  .nav-status{display:none}
+  .nav-links a{padding:6px 10px;font-size:13px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-brand">ToneForge AI</a>
+  <div class="nav-links">
+    <a href="/">Overview</a>
+    <a href="/email">Email Studio</a>
+    <a href="/linkedin" class="active">LinkedIn Studio</a>
+    <a href="/twitter">X / Twitter Studio</a>
+  </div>
+  <div class="nav-status" id="navStatus">Engine: Gemini</div>
+</nav>
+
+<div class="container">
+
+  <!-- MAIN STUDIO WORKSPACE -->
+  <div class="studio-grid">
+
+    <!-- LEFT: INPUT & CONTROLS -->
+    <div class="card">
+      <h2 class="card-title">LinkedIn Post Generator</h2>
+      <p class="card-sub">Turn research notes, personal projects, or career milestones into high-retention LinkedIn posts.</p>
+
+      <label class="field-label">AI Engine</label>
+      <div class="pills" id="providerPills">
+        <div class="pill active" data-val="gemini" onclick="setProvider('gemini')">Gemini (5-Model Fallback)</div>
+        <div class="pill" data-val="groq" onclick="setProvider('groq')">Groq LPU (Ultra-Fast)</div>
+      </div>
+
+      <label class="field-label">Post Length Format</label>
+      <div class="size-grid" id="sizeCards">
+        <div class="size-card" data-words="95" onclick="selectSize(95, this)">
+          <strong>Punchy Insight</strong>
+          <span>~95 words &bull; Fast Scroll</span>
+        </div>
+        <div class="size-card active" data-words="175" onclick="selectSize(175, this)">
+          <strong>Standard Story</strong>
+          <span>~175 words &bull; High Engagement</span>
+        </div>
+        <div class="size-card" data-words="280" onclick="selectSize(280, this)">
+          <strong>Technical Deep-Dive</strong>
+          <span>~280 words &bull; Authority</span>
+        </div>
+      </div>
+
+      <label class="field-label">Hook &amp; Narrative Style</label>
+      <div class="pills" id="tonePills">
+        <div class="pill active" data-val="Builder / Personal Project Showcase" onclick="setTone(this)">Project Launch</div>
+        <div class="pill" data-val="Research Paper & Technical Breakdown" onclick="setTone(this)">Research Breakdown</div>
+        <div class="pill" data-val="Data-Backed Contrarian Take" onclick="setTone(this)">Contrarian Take</div>
+        <div class="pill" data-val="Authentic Career Milestone & Gratitude" onclick="setTone(this)">Milestone / Career</div>
+      </div>
+
+      <label class="field-label">Keypoints / Project Notes</label>
+      <textarea class="studio-input" id="keypointsInput" placeholder="- Built a multi-model RAG Q&amp;A studio using Python, Flask, LangChain &amp; FAISS&#10;- Used local BAAI/bge-small-en-v1.5 embeddings so vector indexing costs $0&#10;- Added automatic fallback across 5 Gemini &amp; Gemma models to eliminate 429 rate errors"></textarea>
+
+      <button class="btn btn-primary" id="genBtn" onclick="generateLinkedIn()">Generate LinkedIn Post &rarr;</button>
+      <div class="error-box" id="errBox"></div>
+    </div>
+
+    <!-- RIGHT: LINKEDIN FEED PREVIEW -->
+    <div class="card">
+      <h2 class="card-title">LinkedIn Feed Preview</h2>
+      <p class="card-sub">Optimized opening hook designed to earn the "...see more" click.</p>
+
+      <div id="metaBadges">
+        <span class="badge">Ready to generate</span>
+      </div>
+
+      <div class="li-mock">
+        <div class="li-header">
+          <div class="li-avatar">HP</div>
+          <div class="li-user">
+            <strong>Hasya Patel &bull; 1st</strong>
+            <span>AI/ML &amp; Full-Stack Engineer &bull; Just now</span>
+          </div>
+        </div>
+        <div class="li-body" id="outputBox">Your formatted LinkedIn post will render here with clean paragraph spacing and targeted hashtags.
+
+Tip: Browse the 10 ready-to-edit LinkedIn templates below (Research Breakdown, Personal Project Launch, System Design Trade-off, Open-to-Work Pitch, and more).</div>
+        <div class="fold-marker">--- "...see more" mobile fold guide (~first 3 lines) ---</div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn-secondary" onclick="copyPost(this)">Copy Full Post</button>
+        <button class="btn btn-secondary" onclick="generateLinkedIn()">Regenerate Hook</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM SECTION: 10 READY-TO-COPY LINKEDIN BOILERPLATES -->
+  <section>
+    <div class="bp-header">
+      <h2>10 High-Engagement LinkedIn Boilerplates</h2>
+      <p>Click "Use in Editor" to load any template into the workspace above, swap [bracketed details], and polish with AI.</p>
+    </div>
+    <div class="bp-grid" id="bpContainer"></div>
+  </section>
+
+</div>
+
+<script>
+let provider = sessionStorage.getItem('tf_provider') || 'gemini';
+let targetWords = 175;
+let selectedTone = 'Builder / Personal Project Showcase';
+let rawOutput = '';
+
+const LINKEDIN_BOILERPLATES = [
+  {
+    tag: "01 • Research Base",
+    title: "Research Paper / Technical Finding Breakdown",
+    tone: "Research Paper & Technical Breakdown",
+    words: 190,
+    body: `Most teams throw bigger LLMs at retrieval problems—when better chunking solves 80% of hallucinations.
+
+I just finished analyzing [Paper / Benchmark Title] on [Core Research Domain], and three findings stood out:
+
+1. [Finding 1 with specific metric, e.g., Hybrid dense + sparse retrieval improved recall by 24%].
+2. [Finding 2, e.g., Smaller 33M-parameter local embedding models matched cloud APIs on domain QA].
+3. [Finding 3, e.g., Latency dropped under 180ms when caching vector indexes on disk].
+
+The practical takeaway for builders:
+Before upgrading your model tier, audit your [Data / Retrieval / Evaluation] pipeline first.
+
+Have you tested [Technique Name] in production yet?
+
+#MachineLearning #GenerativeAI #RAG #AIResearch`
+  },
+  {
+    tag: "02 • Personal Project",
+    title: "End-to-End Personal Project Launch",
+    tone: "Builder / Personal Project Showcase",
+    words: 185,
+    body: `I got tired of [Specific Pain Point, e.g., hitting free-tier rate limits mid-demo], so I built [Project Name] over the weekend.
+
+Here is how it works under the hood:
+- Backend: [Python / Flask / FastAPI] orchestrating [Core Logic]
+- AI Pipeline: [LangChain LCEL + Gemini Multi-Model Fallback + Groq LPU]
+- Storage / Vector Layer: [FAISS / MySQL / Local Cache]
+
+The biggest engineering lesson:
+[Specific technical challenge you solved, e.g., Switching to local ONNX embeddings cut API quota usage to zero while keeping search sub-second].
+
+Live demo & source code in the comments below. Feedback from fellow builders is always welcome!
+
+#Python #BuildInPublic #AIEngineering #SoftwareDevelopment`
+  },
+  {
+    tag: "03 • Career Milestone",
+    title: "Internship / Certification / Program Completion",
+    tone: "Authentic Career Milestone & Gratitude",
+    words: 165,
+    body: `6 weeks, [Number] datasets, and one production ML pipeline later—I'm excited to share that I completed my [Internship / Program Name] at [Organization Name].
+
+During this cohort, I focused on:
+- [Skill / Deliverable 1, e.g., Exploratory data analysis and feature engineering on real-world datasets]
+- [Skill / Deliverable 2, e.g., Training and validating predictive models in Scikit-Learn]
+- [Skill / Deliverable 3, e.g., Deploying interactive dashboards for non-technical stakeholders]
+
+Huge thank you to [Mentor / Team Name] for the code reviews and guidance throughout.
+
+Excited to carry these lessons into my next build in [Target Domain]!
+
+#DataScience #ArtificialIntelligence #CareerGrowth #TechInternship`
+  },
+  {
+    tag: "04 • Engineering Trade-Off",
+    title: "System Design & Architecture Comparison",
+    tone: "Data-Backed Contrarian Take",
+    words: 180,
+    body: `Local embeddings vs. Cloud embedding APIs—which one actually wins for student and startup RAG apps?
+
+When architecting [Project Name], I benchmarked both options side by side:
+
+Cloud Embedding API:
+- Zero local RAM overhead
+- Fails or throttles when free-tier RPM spikes
+
+Local FastEmbed (BAAI/bge-small-en-v1.5):
+- 0 API quota consumed
+- ~[X]ms indexing time on CPU with disk-cached FAISS
+
+For 90% of single-user and MVP workloads, local ONNX embeddings + disk caching beat network round-trips on both cost and reliability.
+
+Which trade-off are you choosing in your current stack?
+
+#SystemDesign #VectorDatabase #LLM #BackendEngineering`
+  },
+  {
+    tag: "05 • Debugging Story",
+    title: "Production Bug / 2 AM Lesson Learned",
+    tone: "Builder / Personal Project Showcase",
+    words: 170,
+    body: `A single unhandled 503 error taught me more about AI engineering than ten tutorials.
+
+While testing [Project Name] under load, my primary LLM endpoint suddenly throttled mid-request. Everything crashed.
+
+Instead of just adding a sleep timer, I redesigned the inference layer:
+1. Built an ordered fallback chain across [Model A -> Model B -> Model C].
+2. Added a secondary provider switch ([Gemini <-> Groq]) at the session layer.
+3. Cached deterministic outputs locally so repeat queries never hit the network.
+
+Reliability isn't a model feature—it's an architecture decision.
+
+#SoftwareEngineering #LLM #Python #Reliability`
+  },
+  {
+    tag: "06 • Hackathon / Sprint",
+    title: "Hackathon / 48-Hour Build Retrospective",
+    tone: "Builder / Personal Project Showcase",
+    words: 165,
+    body: `48 hours. 1 blank repository. 1 working [Domain, e.g., AI Healthcare / AgriTech] prototype.
+
+Our team ([Teammate 1], [Teammate 2], and I) just wrapped up [Hackathon / Event Name], where we built [Project Name] to help [Target Users] do [Core Outcome].
+
+What worked:
+- Locking our API contract in the first 2 hours
+- Keeping the frontend clean and self-contained for zero deployment friction
+
+What we'd improve next:
+- Adding automated evaluation metrics for [Specific Edge Case]
+
+Grateful to the organizers and judges for sharp feedback on our architecture!
+
+#Hackathon #FullStack #Innovation #Teamwork`
+  },
+  {
+    tag: "07 • Curated Stack",
+    title: "Zero-Cost AI Developer Stack Breakdown",
+    tone: "Data-Backed Contrarian Take",
+    words: 160,
+    body: `You don't need a $200/month cloud bill to ship production-grade Generative AI projects.
+
+Here is the exact $0 stack I use to build and deploy full-stack AI apps:
+
+1. Orchestration: LangChain (LCEL) for clean, composable chains
+2. Inference: Google Gemini Free Tier + Groq LPU for sub-second speed
+3. Vector Search: FAISS + local FastEmbed models
+4. Backend & UI: Python Flask + lightweight vanilla JS
+5. Hosting: Vercel / Render for instant Git-push deploys
+
+Constraints force cleaner engineering. What's your favorite free-tier developer tool right now?
+
+#GenerativeAI #IndieHacker #Python #WebDevelopment`
+  },
+  {
+    tag: "08 • Industry Opinion",
+    title: "Contrarian Take on AI Wrappers vs. Workflows",
+    tone: "Data-Backed Contrarian Take",
+    words: 150,
+    body: `"Just wrap an API" stops working the moment real users touch your app.
+
+Anyone can generate a wall of text with a single prompt. Real product value comes from everything around the model:
+- Strict length and tone guardrails
+- Domain-specific boilerplates that eliminate blank-page friction
+- Graceful fallback when upstream APIs stall
+
+The winners in applied AI won't be the ones with the cleverest prompt—they'll be the ones who engineer the cleanest workflow.
+
+Agree or disagree?
+
+#ProductEngineering #AppliedAI #TechTrends`
+  },
+  {
+    tag: "09 • Event / Learning",
+    title: "Top 3 Takeaways from Workshop / Tech Talk",
+    tone: "Research Paper & Technical Breakdown",
+    words: 145,
+    body: `Attended [Event / Workshop / Course Name] on [Topic] yesterday—here are 3 practical insights worth bookmarking:
+
+1. [Insight 1, e.g., Evaluation datasets matter more than prompt tweaking once you pass 80% accuracy].
+2. [Insight 2, e.g., Latency perception drops dramatically when streaming or showing progressive states].
+3. [Insight 3, e.g., Small specialized models outperform giant general models on structured extraction].
+
+Always energizing to learn alongside builders solving real problems in [City / Community].
+
+#ContinuousLearning #AI #TechCommunity`
+  },
+  {
+    tag: "10 • Career Pitch",
+    title: "Open-to-Work / Internship & Collaboration Pitch",
+    tone: "Authentic Career Milestone & Gratitude",
+    words: 155,
+    body: `I'm currently looking for [Entry-Level / Internship] opportunities in [AI/ML Engineering / Generative AI / Full-Stack Python] starting [Month / Timeline].
+
+Over the past year, I've focused on building end-to-end systems rather than isolated notebooks:
+- [Project 1]: [1-line impact + tech stack]
+- [Project 2]: [1-line impact + tech stack]
+- [Project 3]: [1-line impact + tech stack]
+
+Core stack: Python, Flask, FastAPI, LangChain, Scikit-Learn, TensorFlow, React, and SQL.
+
+If your team in [Preferred Location / Remote] is hiring builders who ship fast, I'd love to connect! Portfolio: [Your Portfolio URL]
+
+#OpenToWork #AIML #PythonDeveloper #Hiring`
+  }
+];
+
+(function init(){
+  setProvider(provider, true);
+  renderBoilerplates();
+})();
+
+function setProvider(p){
+  provider = p;
+  sessionStorage.setItem('tf_provider', p);
+  document.querySelectorAll('#providerPills .pill').forEach(el => {
+    el.classList.toggle('active', el.dataset.val === p);
+  });
+  document.getElementById('navStatus').textContent = 'Engine: ' + (p === 'gemini' ? 'Gemini' : 'Groq');
+}
+
+function selectSize(words, el){
+  targetWords = words;
+  document.querySelectorAll('#sizeCards .size-card').forEach(c => c.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+function setTone(el){
+  selectedTone = el.dataset.val;
+  document.querySelectorAll('#tonePills .pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function renderBoilerplates(){
+  const container = document.getElementById('bpContainer');
+  container.innerHTML = LINKEDIN_BOILERPLATES.map((bp, idx) => `
+    <div class="bp-card">
+      <div>
+        <div class="bp-tag">${bp.tag}</div>
+        <h3>${bp.title}</h3>
+        <div class="bp-preview">${bp.body.replace(/</g,'&lt;')}</div>
+      </div>
+      <div class="bp-actions">
+        <button class="btn btn-secondary" onclick="loadBoilerplate(${idx})">Use in Editor &uarr;</button>
+        <button class="btn btn-secondary" onclick="copyBoilerplate(${idx}, this)">Copy Post</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function loadBoilerplate(idx){
+  const bp = LINKEDIN_BOILERPLATES[idx];
+  document.getElementById('keypointsInput').value = bp.body;
+  targetWords = bp.words;
+  document.querySelectorAll('#sizeCards .size-card').forEach(c => {
+    c.classList.toggle('active', Math.abs(parseInt(c.dataset.words,10) - bp.words) <= 25);
+  });
+  document.querySelectorAll('#tonePills .pill').forEach(p => {
+    if(p.dataset.val === bp.tone) setTone(p);
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+  document.getElementById('keypointsInput').focus();
+}
+
+function copyBoilerplate(idx, btn){
+  navigator.clipboard.writeText(LINKEDIN_BOILERPLATES[idx].body).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1400);
+  });
+}
+
+async function generateLinkedIn(){
+  const keypoints = document.getElementById('keypointsInput').value.trim();
+  const errBox = document.getElementById('errBox');
+  const btn = document.getElementById('genBtn');
+
+  errBox.style.display = 'none';
+  if(!keypoints){
+    errBox.textContent = 'Please enter your keypoints or select a boilerplate template below.';
+    errBox.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Drafting LinkedIn Post...';
+
+  try{
+    const res = await fetch('/api/generate', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        platform: 'linkedin',
+        keypoints: keypoints,
+        tone: selectedTone,
+        target_words: targetWords,
+        provider: provider,
+        api_key: sessionStorage.getItem('tf_api_key') || ''
+      })
+    });
+    const data = await res.json();
+
+    if(!res.ok){
+      errBox.textContent = data.error || 'Generation failed.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    rawOutput = data.content;
+    document.getElementById('outputBox').textContent = rawOutput;
+    document.getElementById('metaBadges').innerHTML =
+      `<span class="badge">${data.word_count} Words</span>` +
+      `<span class="badge">${data.char_count} Chars</span>` +
+      `<span class="badge">${data.model_used}</span>`;
+
+  } catch(e){
+    errBox.textContent = 'Network error: ' + e.message;
+    errBox.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Generate LinkedIn Post &rarr;';
+  }
+}
+
+function copyPost(btn){
+  if(!rawOutput) return;
+  navigator.clipboard.writeText(rawOutput).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = orig, 1400);
+  });
+}
+</script>
+</body>
+</html>
